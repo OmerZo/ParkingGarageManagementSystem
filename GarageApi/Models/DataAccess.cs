@@ -136,13 +136,16 @@ namespace GarageApi.Models
 
         public string GetByTicket(string ticketType)
         {
+            Customer customer = new Customer();
+            customer.TicketName = ticketType;
+            customer.ChooseTicket();
             string message = "";
             using (SqlConnection sqlConnection = new SqlConnection(Helper.CnnVal("GarageDB")))
             {
                 SqlCommand command = new SqlCommand("spVehicles_GetAllByTicket", sqlConnection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@First", SqlDbType.Int).Value = 0;
-                command.Parameters.AddWithValue("@Last", SqlDbType.Int).Value = 20;
+                command.Parameters.AddWithValue("@First", SqlDbType.Int).Value = customer.Ticket.FirstLot;
+                command.Parameters.AddWithValue("@Last", SqlDbType.Int).Value = customer.Ticket.LastLot;
                 sqlConnection.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 try
