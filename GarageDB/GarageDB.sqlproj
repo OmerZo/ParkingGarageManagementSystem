@@ -65,5 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GarageDB.publish.xml" />
+    <None Include="GarageDB2.publish.publish.xml" />
   </ItemGroup>
 </Project>

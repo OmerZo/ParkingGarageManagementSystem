@@ -1,6 +1,7 @@
 ﻿using GarageApi.Models.Vehicles;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -57,24 +58,24 @@ namespace GarageApi.Models
                 SqlCommand command = new SqlCommand(queryString, sqlConnection);
                 sqlConnection.Open();
                 int result = command.ExecuteNonQuery();
-                if (result < 0) message = "No Vehicle was Added.";
+                if (result <= 0) message = "Sorry, We could not check your vehicle in.";
             }
             message = "Vehicle Added.";
             return message;
         }
 
-        public bool CheckOut(string licenseId)
+        public string CheckOut(string licenseId)
         {
-            bool Ok = true;
+            string message = "Have a good day";
             using (SqlConnection sqlConnection = new SqlConnection(Helper.CnnVal("GarageDB")))
             {
                 string queryString = $"DELETE FROM Vehicles WHERE LicenseId = { licenseId };";
                 SqlCommand command = new SqlCommand(queryString, sqlConnection);
                 sqlConnection.Open();
                 int result = command.ExecuteNonQuery();
-                if (result < 0) Ok = false;
+                if (result <= 0) message = "Sorry, We could not find your vehicle.";
             }
-            return Ok;
+            return message;
         }
 
         private bool CheckDimensions(ITicket ticket, Vehicle vehicle)
@@ -92,7 +93,7 @@ namespace GarageApi.Models
             if (!CheckDimensions(ticket, vehicle))
             {
                 ticket = new Vip();
-                return "Your Vehicle Dimensions doesn't suitable with Ticket  Dimensions." +
+                return "Your Vehicle Dimensions doesn't suitable with Ticket Dimensions." +
                        " You need to purchase a VIP ticket with extra " + (ticket.Cost - customerTicket.Cost) + " Dollars.";
             }
             return "Your Vehicle Dimensions doesn't suitable with Ticket  Dimensions." +
@@ -133,6 +134,34 @@ namespace GarageApi.Models
             return lot;
         }
 
+        public string GetByTicket(string ticketType)
+        {
+            string message = "";
+            using (SqlConnection sqlConnection = new SqlConnection(Helper.CnnVal("GarageDB")))
+            {
+                SqlCommand command = new SqlCommand("spVehicles_GetAllByTicket", sqlConnection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@First", SqlDbType.Int).Value = 0;
+                command.Parameters.AddWithValue("@Last", SqlDbType.Int).Value = 20;
+                sqlConnection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                try
+                {
+                    while (reader.Read())
+                    {
+                        message += reader.GetString(0);
+                        message += "   ";
+                        message += reader.GetInt32(1);
+                        message += "    ";
+                    }
+                }
+                finally
+                {
+                    reader.Close();
+                }
+            }
+            return message;
+        }
 
         //public Vehicle CreateVehicle(SqlDataReader reader)
         //{
@@ -150,9 +179,5 @@ namespace GarageApi.Models
         //        LotNumber = (int)reader["LotNumber"]
         //    };
         //}
-
-
-
-
     }
 }

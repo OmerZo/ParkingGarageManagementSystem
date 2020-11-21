@@ -18,10 +18,13 @@ namespace GarageApi.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        // GET: api/Vehicles/5
-        public string Get(int id)
+        // GET: api/Vehicles/vip
+        [Route("api/Vehicles/{ticketType}")]
+        [HttpGet]
+        public string Get([FromUri]string ticketType)
         {
-            return "value";
+            DataAccess dataAccess = new DataAccess();
+            return dataAccess.GetByTicket(ticketType);
         }
 
         // POST: api/Vehicles/CheckIn
@@ -37,7 +40,7 @@ namespace GarageApi.Controllers
         // DELETE: api/Vehicles/CheckOut/123456
         [Route("api/Vehicles/CheckOut/{licenseId}")]
         [HttpDelete]
-        public bool CheckOut([FromUri]string licenseId)
+        public string CheckOut([FromUri]string licenseId)
         {
             DataAccess dataAccess = new DataAccess();
             return dataAccess.CheckOut(licenseId);
