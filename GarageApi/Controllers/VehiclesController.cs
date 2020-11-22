@@ -11,11 +11,12 @@ namespace GarageApi.Controllers
     public class VehiclesController : ApiController
     {
         // GET: api/Vehicles
-        public IEnumerable<string> Get()
+        [Route("api/Vehicles")]
+        [HttpGet]
+        public string Get()
         {
-            //DataAccess dataAccess = new DataAccess();
-            //Vehicle vehicle = dataAccess.TestConn();
-            return new string[] { "value1", "value2" };
+            DataAccess dataAccess = new DataAccess();
+            return dataAccess.GetAll();
         }
 
         // GET: api/Vehicles/vip

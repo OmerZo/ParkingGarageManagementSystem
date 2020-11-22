@@ -4,35 +4,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 
 namespace GarageApi.Models
 {
     public class DataAccess
     {
-        //public IVehicle TestConn()
-        //{
-        //    IVehicle vehicle = null;
-        //    using (SqlConnection sqlConnection = new SqlConnection(Helper.CnnVal("GarageDB")))
-        //    {
-        //        string queryString = "SELECT * FROM Vehicles WHERE Id = 1";
-        //        SqlCommand command = new SqlCommand(queryString, sqlConnection);
-        //        sqlConnection.Open();
-        //        SqlDataReader reader = command.ExecuteReader();
-        //        try
-        //        {
-        //            while (reader.Read())
-        //            {
-        //                vehicle = CreateVehicle(reader);
-        //            }
-        //        }
-        //        finally
-        //        {
-        //            reader.Close();
-        //        }
-        //    }
-
-        //    return vehicle;
-        //}
 
         public string CheckIn(Customer customer)
         {
@@ -139,7 +116,7 @@ namespace GarageApi.Models
             Customer customer = new Customer();
             customer.TicketName = ticketType;
             customer.ChooseTicket();
-            string message = "";
+            StringBuilder message = new StringBuilder(""); 
             using (SqlConnection sqlConnection = new SqlConnection(Helper.CnnVal("GarageDB")))
             {
                 SqlCommand command = new SqlCommand("spVehicles_GetAllByTicket", sqlConnection);
@@ -150,12 +127,13 @@ namespace GarageApi.Models
                 SqlDataReader reader = command.ExecuteReader();
                 try
                 {
+
                     while (reader.Read())
                     {
-                        message += reader.GetString(0);
-                        message += "   ";
-                        message += reader.GetInt32(1);
-                        message += "    ";
+                        message.Append("Name : " + reader.GetString(0).Trim() + "    ");
+                        message.Append("Phone : " + reader.GetString(1).Trim() + "    ");
+                        message.Append("License ID : " + reader.GetString(2).Trim() + "    ");
+                        message.Append("Lot number : " + reader.GetInt32(3) + "      ");
                     }
                 }
                 finally
@@ -163,24 +141,16 @@ namespace GarageApi.Models
                     reader.Close();
                 }
             }
-            return message;
+            return message.ToString();
         }
 
-        //public Vehicle CreateVehicle(SqlDataReader reader)
-        //{
-        //    return new Vehicle
-        //    {
-        //        Id = (int)reader["id"],
-        //        OwnerName = reader["OwnerName"].ToString(),
-        //        LicenseId = reader["LicenseId"].ToString(),
-        //        OwnerPhone = reader["OwnerPhone"].ToString(),
-        //        TicketType = (int)reader["TicketType"],
-        //        VehicleType = (int)reader["VehicleType"],
-        //        VehicleHeight = (int)reader["VehicleHeight"],
-        //        VehicleWidth = (int)reader["VehicleWidth"],
-        //        VehicleLength = (int)reader["VehicleLength"],
-        //        LotNumber = (int)reader["LotNumber"]
-        //    };
-        //}
+        public string GetAll()
+        {
+            StringBuilder message = new StringBuilder("");
+            message.Append(GetByTicket("vip"));
+            message.Append(GetByTicket("value"));
+            message.Append(GetByTicket("regular"));
+            return message.ToString();
+        }
     }
 }
